@@ -48,13 +48,17 @@ ftm validate -i data/transactions.ijson -o data/transactions.validated.ijson
 4. Store only facts needed for the public-interest research. Do not infer home addresses, family connections, or identities from name similarity alone.
 5. Keep corrections traceable to the source filing and reviewer.
 
-## Next implementation steps
+## Project status and next steps
 
-1. Confirm the exact GCP project ID and create the source-document bucket and restricted staging environment.
-2. Obtain an initial batch of Jackson Municipal Clerk campaign-finance reports and record their provenance.
-3. Transcribe a small batch into the CSV template, compare every value to its source page, and refine the fields based on actual Jackson forms.
-4. Add the local-report and office/term model only after the first filings show which custom fields are needed.
-5. Build OCR-assisted intake and a searchable review interface; human review remains required before publication.
+- GCP project: `ftmj-515313`; the Codex identity connection has passed a read-only project verification.
+- GitHub starter: [`eddiewrightbbq-lgtm/ftmj`](https://github.com/eddiewrightbbq-lgtm/ftmj).
+- GCP architecture: proposed, not provisioned. See [`docs/gcp-architecture.md`](docs/gcp-architecture.md).
+
+1. Obtain a small sample of Jackson Municipal Clerk campaign-finance reports and register their provenance.
+2. Transcribe a small batch into the CSV template, compare every value to its source page, and refine fields against actual Jackson forms.
+3. Review the proposed Cloud Storage and BigQuery design and grant only the needed resource-level permissions.
+4. Provision the selected resources after the design and billing controls are agreed.
+5. Add local-office and officeholder-term records after source documents for those records are identified and reviewed. Add a public review interface only after the intake process is established.
 
 ## License and upstream model
 
