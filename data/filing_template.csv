@@ -1,0 +1,3 @@
+report_id,filing_committee_name,candidate_name,office_sought,election_cycle,report_type,period_start,period_end,filed_date,received_date,amendment_status,summary_total_receipts,summary_total_disbursements,cash_on_hand,source_office,source_uri,source_filename,source_sha256,page_count,coverage_status,review_status,reviewer,reviewed_at,notes
+JXN-REPORT-EXAMPLE,Example Committee,Example Candidate,Mayor,2025,Quarterly,2025-01-01,2025-03-31,,,,,,,,,,,,received_digital,unreviewed,,,,
+

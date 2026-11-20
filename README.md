@@ -24,7 +24,7 @@ ftmj --help
 
 ## Convert a reviewed transaction CSV
 
-Start from `data/transaction_template.csv`. Keep one row per itemized receipt or expenditure and preserve the original filing separately. For contributions, fill the donor fields and leave recipient fields blank; for expenditures, fill the recipient fields and leave donor fields blank. Do not use OCR output as final data until a person has reviewed it against the source page.
+Start with `data/filing_template.csv` for one row per report, then use `data/transaction_template.csv` for one row per itemized receipt or expenditure. Keep the original filing separately. For contributions, fill the donor fields and leave recipient fields blank; for expenditures, fill the recipient fields and leave donor fields blank. The importer accepts only transaction rows marked `reviewed`; do not use OCR output as final data until a person has checked it against the source page.
 
 ```bash
 ftmj import-transactions data/transaction_template.csv --output data/transactions.ijson
@@ -64,3 +64,4 @@ ftm validate -i data/transactions.ijson -o data/transactions.validated.ijson
 ## License and upstream model
 
 FtM is maintained by OpenSanctions and is MIT licensed. This starter is an independent Jackson-focused project that uses the FtM package; it is not affiliated with or endorsed by OpenSanctions, FollowTheMoney.org, the City of Jackson, or the Mississippi Secretary of State.
+

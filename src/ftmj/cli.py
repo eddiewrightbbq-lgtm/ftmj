@@ -30,6 +30,7 @@ REQUIRED_COLUMNS = {
     "purpose",
     "source_url",
     "source_page",
+    "review_status",
 }
 ALLOWED_TYPES = {"contribution", "expenditure"}
 PARTY_SCHEMAS = {"person": "Person", "organization": "Organization"}
@@ -118,6 +119,7 @@ def import_transactions(input_path: Path, output_path: Path) -> int:
                 donor_type = _clean(row.get("donor_type")).lower()
                 recipient_name = _clean(row.get("recipient_name"))
                 recipient_type = _clean(row.get("recipient_type")).lower()
+                review_status = _clean(row.get("review_status")).lower()
 
                 if not report_id:
                     raise ValueError("report_id is required")
@@ -125,6 +127,8 @@ def import_transactions(input_path: Path, output_path: Path) -> int:
                     raise ValueError("transaction_type must be contribution or expenditure")
                 if not committee_name:
                     raise ValueError("committee_name is required")
+                if review_status != "reviewed":
+                    raise ValueError("review_status must be reviewed before import")
                 if tx_type == "contribution" and (not donor_name or donor_type not in PARTY_SCHEMAS):
                     raise ValueError("contributions require donor_name and donor_type (person or organization)")
                 if tx_type == "expenditure" and (not recipient_name or recipient_type not in PARTY_SCHEMAS):
@@ -185,10 +189,7 @@ def import_transactions(input_path: Path, output_path: Path) -> int:
                         "recordId": transaction_id,
                         "sourceUrl": _clean(row.get("source_url")),
                         "publisher": "City of Jackson Municipal Clerk",
-                        "description": (
-                            f"Report {report_id}; transaction type {tx_type}; "
-                            f"source page {_clean(row.get('source_page')) or 'not recorded'}"
-                        ),
+                        "description": _description(row, report_id, tx_type),
                     },
                 )
                 if not payment.has("payer") or not payment.has("beneficiary"):
@@ -206,6 +207,21 @@ def import_transactions(input_path: Path, output_path: Path) -> int:
             handle.write(json.dumps(entities[entity_id].to_dict(), ensure_ascii=False, separators=(",", ":")))
             handle.write("\n")
     return len(entities)
+
+
+def _description(row: dict[str, str], report_id: str, tx_type: str) -> str:
+    details = [
+        f"Report {report_id}",
+        f"transaction type {tx_type}",
+        f"source page {_clean(row.get('source_page')) or 'not recorded'}",
+    ]
+    source_category = _clean(row.get("source_category"))
+    source_line = _clean(row.get("source_line"))
+    if source_category:
+        details.append(f"source category {source_category}")
+    if source_line:
+        details.append(f"source line {source_line}")
+    return "; ".join(details)
 
 
 def main() -> None:
@@ -226,3 +242,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
