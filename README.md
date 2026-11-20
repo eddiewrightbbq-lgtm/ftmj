@@ -53,6 +53,7 @@ ftm validate -i data/transactions.ijson -o data/transactions.validated.ijson
 - GCP project: `ftmj-515313`; the Codex identity connection has passed a read-only project verification.
 - GitHub starter: [`eddiewrightbbq-lgtm/ftmj`](https://github.com/eddiewrightbbq-lgtm/ftmj).
 - GCP architecture: proposed, not provisioned. See [`docs/gcp-architecture.md`](docs/gcp-architecture.md).
+- Municipal campaign-finance source coverage: documented in [`docs/source-landscape.md`](docs/source-landscape.md).
 
 1. Obtain a small sample of Jackson Municipal Clerk campaign-finance reports and register their provenance.
 2. Transcribe a small batch into the CSV template, compare every value to its source page, and refine fields against actual Jackson forms.

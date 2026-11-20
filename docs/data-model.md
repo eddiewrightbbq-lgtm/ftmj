@@ -1,25 +1,39 @@
 # FTMJ initial data model
 
-FTMJ uses the standard FollowTheMoney entities that already describe the first data we need. It avoids a Jackson-only custom schema until actual City Clerk report formats show that a custom type is necessary.
+FTMJ uses standard FollowTheMoney (FtM) entities for the graph and keeps filing-specific fields in a structured report register. This avoids inventing a Jackson-only graph schema before the first current forms have been reviewed.
 
 | FTMJ concept | FtM schema | Relationship or properties |
 |---|---|---|
-| Candidate or individual donor/payee | `Person` | `name`; matching is not performed automatically |
-| Campaign committee, organization donor, or vendor | `Organization` | `name` |
-| Campaign receipt or expenditure | `Payment` | `payer`, `beneficiary`, `date`, `amount`, `purpose`, `recordId`, `sourceUrl`, `publisher`, and source-page note in `description` |
-| City office and officeholder term (next phase) | `Position` and `Occupancy` | Position identifies the office; occupancy links a person to it over a dated term |
-| City procurement (later phase) | `Contract` and `ContractAward` | Contract and supplier award, linked to organizations |
+| Elected official or candidate | `Person` | Source-backed name; a candidate is not assumed to hold office |
+| Campaign committee, PAC, organization donor, or vendor | `Organization` | Name and only source-supported identifiers |
+| Municipal government | `PublicBody` | City of Jackson as the authority for municipal offices |
+| Mayor or council seat | `Position` | One position per office/ward as needed |
+| Person holding a city office | `Occupancy` | Links a `Person` to a `Position` over the verified term dates |
+| Campaign receipt or expenditure | `Payment` | `payer`, `beneficiary`, `date`, `amount`, `purpose`, `recordId`, `sourceUrl`, `publisher`, and page reference |
 
-For a contribution, the donor is the payer and the committee is the beneficiary. For an expenditure, the committee is the payer and the recipient is the beneficiary. Transaction direction follows the filing; it does not imply impropriety.
+For a receipt, the donor is the payer and the candidate committee is the beneficiary. For a disbursement, the committee is the payer and the recipient is the beneficiary. The transaction direction follows the filing and does not imply impropriety. FtM defines `Payment` as a monetary payment between parties; preserve source-specific categories such as loan and in-kind separately in the filing register rather than silently treating them as ordinary cash contributions.
+
+## Filing register and analytical tables
+
+The campaign report is the source record; individual payment rows are children of that report. Keep report fields in a normalized filing table (for example, in BigQuery), then export the verified parties and payments as FtM JSON:
+
+- **Filing:** `report_id`, candidate/committee, office sought, election cycle, report type, period start/end, received/filed date, amendment status, original source URI, SHA-256, page count, clerk/source office, coverage status, and review status.
+- **Receipt:** transaction ID, transaction date, amount this period, source category, donor name/type, reported employer/occupation only when needed, year-to-date aggregate, report ID, and page.
+- **Disbursement:** transaction ID, date, amount, recipient name/type, purpose, year-to-date aggregate, report ID, and page.
+- **Summary totals:** itemized/non-itemized totals, total receipts, total disbursements, and cash on hand remain report-period facts. Do not manufacture payment entities from report summary totals.
+
+City Clerk filings can contain personal addresses. Keep originals in private source storage; omit donor mailing addresses from the public dataset by default. Employer and occupation values are source-reported text, not verified facts about a person. Never infer missing identity, employer, occupation, or relationship information.
 
 ## Identity policy
 
-Name-only deduplication is unsafe for people who share common names. The importer therefore creates party identifiers scoped to a filing unless a reviewer supplies a stable `donor_key`, `recipient_key`, or `committee_key`. Cross-report identity links should be curated and backed by identifiers or corroborating evidence, with the original source spelling retained.
+Name-only deduplication is unsafe for people with common names. The importer creates party identifiers scoped to a filing unless a reviewer supplies a stable key supported by evidence. Keep the original source spelling and curate cross-report links from stable identifiers or corroborating sources. Candidate identity and committee identity are separate entities.
 
-## Provenance policy
+## Provenance and review policy
 
-The original filing remains the source of truth. Every imported transaction carries the report identifier, filing source URL if known, local clerk as publisher, transaction record ID, and page note. The intake register should separately track the source file's checksum, retrieval timestamp, and reviewer status. Corrections should be stored as new reviewed versions, not silently written over the transcription.
+The original filing remains the source of truth. Each extracted transaction must point to its report and source page. Preserve the original PDF unchanged, record its checksum and retrieval/receipt dates, and track the reviewer and corrections. OCR is a draft, not verification. Keep `not_found`, `not_yet_posted`, and `request_pending` distinct from a zero-activity filing or an explicit zero report.
 
 ## Coverage and uncertainty
 
-An empty or missing record is not evidence that no transaction occurred. Reports can be incomplete, handwritten, filed on paper, or difficult to read. FTMJ should expose coverage by office, reporting period, and source status so users can see what has and has not been reviewed.
+Municipal campaign-finance filings are paper-submitted to the City Clerk, while the Mississippi Secretary of State search only indexes electronically filed reports. The City Clerk's public archive currently exposes 2017–2018 report PDFs. Therefore, FTMJ must track collection coverage by candidate/committee, office, election cycle, and reporting period. A missing online file is not evidence that a report was never filed or that no money moved.
+
+See [source-landscape.md](source-landscape.md) for current source access and intake implications.
