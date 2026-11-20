@@ -1,0 +1,2 @@
+report_id,transaction_id,transaction_type,transaction_date,amount,committee_name,committee_key,donor_name,donor_type,donor_key,recipient_name,recipient_type,recipient_key,purpose,source_url,source_page
+JXN-REPORT-EXAMPLE,TX-001,contribution,01/15/2025,250.00,Example Committee,,Example Donor,person,,,,,Campaign contribution,https://example.invalid/report.pdf,2

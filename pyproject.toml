@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ftmj"
+version = "0.1.0"
+description = "Jackson, Mississippi campaign-finance intake using the FollowTheMoney data model"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["followthemoney"]
+
+[project.scripts]
+ftmj = "ftmj.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
